@@ -1,10 +1,10 @@
 
 ## 项目介绍
 这是一个自动化的前端环境，
-采用[Grunt](http://gruntjs.com) + [sass](http://sass-lang.com) + [compass](http://compass-style.org/) + [jade](http://jade-lang.com/) 搭建。此环境适合多个前端开发人员协作开发，快速编写HTML与CSS。
+采用[Grunt](http://gruntjs.com) + [Sass](http://sass-lang.com) + [Compass](http://compass-style.org/) + [Jade](http://jade-lang.com/) 搭建。此环境适合多个前端开发人员协作开发，快速编写HTML与CSS。
 
 ## 安装
-因为sass和compass依赖ruby环境，所以你首先需要[安装ruby](http://www.ruby-lang.org/en/downloads/)，安装好以后执行
+因为Sass和Compass依赖Ruby环境，所以你首先需要[安装Ruby](http://www.ruby-lang.org/en/downloads/)，安装好以后执行
 
 ```
 gem install compass
@@ -35,7 +35,7 @@ grunt
 浏览器将自动打开预览地址。
 
 ## 备注：
-[sass用法指南](http://www.ruanyifeng.com/blog/2012/06/sass.html)
+[Sass用法指南](http://www.ruanyifeng.com/blog/2012/06/sass.html)
 
 [Compass用法指南](http://www.ruanyifeng.com/blog/2012/11/compass.html)
 
