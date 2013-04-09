@@ -1,4 +1,3 @@
-
 ## 项目介绍
 这是一个自动化的前端环境，
 采用[Grunt](http://gruntjs.com) + [Sass](http://sass-lang.com) + [Compass](http://compass-style.org/) + [Jade](http://jade-lang.com/) 搭建。此环境适合多个前端开发人员协作开发，快速编写HTML与CSS。
@@ -39,6 +38,6 @@ grunt
 
 [Compass用法指南](http://www.ruanyifeng.com/blog/2012/11/compass.html)
 
-[Jade模板引擎入门教程](http://www.csser.com/board/4f3f516e38a5ebc978000508)
+[Jade模板引擎入门教程](https://github.com/visionmedia/jade/blob/master/Readme_zh-cn.md)
 
 这三个东东不用担心，很快就能学会。学好之后可以让你事半功倍哦！！
