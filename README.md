@@ -5,6 +5,8 @@
 ## 安装
 因为Sass和Compass依赖Ruby环境，所以你首先需要[安装Ruby](http://www.ruby-lang.org/en/downloads/)，安装好以后执行
 
+注意：必须安装1.9.x以上的Ruby版本
+
 ```
 gem install compass
 ```
