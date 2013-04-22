@@ -11,29 +11,22 @@ module.exports = function(grunt) {
 
     grunt.initConfig({
         watch: {
+            scripts: {
+                files: ['app/**/*.{js,css,png,jpg,jpeg,webp}'],
+                tasks: ['copy:debug','livereload']
+            },
             compass: {
-                files: ['app/styles/{,*/}*.{scss,sass}'],
-                tasks: ['compass']
+                files: ['app/**/*.scss'],
+                tasks: ['compass:debug']
             },
             jade: {
-                files: ['app/{,*/}*.jade', 'app/{,*/}*.html'],
+                files: ['app/**/*.jade'],
                 tasks: ['jade:debug']
-            },
-            copy: {
-                files: ['app/scripts/{,*/}*.js', 'app/images/{,*/}*.{png,jpg,jpeg,webp}'],
-                tasks: ['copy:debug']
-            },
-            livereload: {
-                files: [
-                    '{.tmp,app}/styles/{,*/}*.css',
-                    '{.tmp,app}/scripts/{,*/}*.js',
-                    '{.tmp,app}/images/{,*/}*.{png,jpg,jpeg,webp}'],
-                tasks: ['livereload']
             }
         },
         connect: {
             options: {
-                port: 9000,
+                port: 2013,
                 hostname: '0.0.0.0'
             },
             livereload: {
@@ -41,15 +34,6 @@ module.exports = function(grunt) {
                     middleware: function(connect) {
                         return [
                         lrSnippet,
-                        mountFolder(connect, '.tmp'),
-                        mountFolder(connect, 'app')];
-                    }
-                }
-            },
-            debug: {
-                options: {
-                    middleware: function(connect) {
-                        return [
                         mountFolder(connect, '.tmp'),
                         mountFolder(connect, 'app')];
                     }
@@ -151,37 +135,22 @@ module.exports = function(grunt) {
             debug: {
                 files: [{
                     expand: true,
-                    cwd: 'app/images/',
-                    src: ['**'],
-                    dest: '.tmp/images'
-                }, // makes all src relative to cwd
-                {
-                    expand: true,
-                    cwd: 'app/scripts/',
-                    src: ['**'],
-                    dest: '.tmp/scripts'
-                } // flattens
-                ]
+                    cwd: 'app',
+                    src: ['**/*.{css,js,png,jpg,jpeg}'],
+                    dest: '.tmp/'
+                }]
             },
             dist: {
                 files: [{
                     expand: true,
-                    cwd: 'app/images/',
-                    src: ['**'],
-                    dest: 'dist/images'
-                }, // makes all src relative to cwd
-                {
-                    expand: true,
-                    cwd: 'app/scripts/',
-                    src: ['**'],
-                    dest: 'dist/scripts'
-                } // flattens
-                ]
+                    cwd: 'app',
+                    src: ['**/*.{css,js,png,jpg,jpeg}'],
+                    dest: '.dist/'
+                }]
             }
         }
     });
 
-    grunt.renameTask('regarde', 'watch');
 
     grunt.registerTask('server', function(target) {
         if (target === 'dist') {
@@ -189,20 +158,22 @@ module.exports = function(grunt) {
         }
 
         grunt.task.run([
-            'clean:dist',
+            'clean:debug',
             'compass:debug',
             'jade:debug',
             'livereload-start',
             'connect:livereload',
             'copy:debug',
             'open',
-            'jshint',
             'watch']);
     });
 
+    grunt.registerTask('test', [
+        
+    ]);
 
     grunt.registerTask('build', [
-        'clean:debug',
+        'clean:dist',
         'clean:dist',
         'compass:dist',
         'jade:dist',
@@ -211,5 +182,5 @@ module.exports = function(grunt) {
         'copy:dist']);
 
     grunt.registerTask('default', [
-        'server']);
+        'server','jshint']);
 };
