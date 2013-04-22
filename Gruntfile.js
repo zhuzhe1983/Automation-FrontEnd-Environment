@@ -17,11 +17,11 @@ module.exports = function(grunt) {
             },
             compass: {
                 files: ['app/**/*.scss'],
-                tasks: ['compass:debug']
+                tasks: ['compass:debug','livereload']
             },
             jade: {
                 files: ['app/**/*.jade'],
-                tasks: ['jade:debug']
+                tasks: ['jade:debug','livereload']
             }
         },
         connect: {
