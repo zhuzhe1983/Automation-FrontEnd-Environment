@@ -1,6 +1,6 @@
 {
-  "name": "jquery",
-  "version": "0.0.0",
+  "name": "automation-frontend-environment",
+  "version": "0.0.1",
   "dependencies": {},
   "devDependencies": {
     "grunt": "~0.4.0",
@@ -16,7 +16,7 @@
     "grunt-contrib-jade":"0.5.0",
     "grunt-bower-hooks": "~0.2.0",
     "grunt-usemin": "~0.1.9",
-    "grunt-regarde": "~0.1.1",
+    "grunt-contrib-watch": "~0.3.1",
     "grunt-open": "~0.2.0",
     "matchdep": "~0.1.1"
   },
