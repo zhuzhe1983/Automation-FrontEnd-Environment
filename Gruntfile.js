@@ -13,20 +13,29 @@ module.exports = function(grunt) {
         watch: {
             scripts: {
                 files: ['app/**/*.{js,css,png,jpg,jpeg,webp}'],
-                tasks: ['copy:debug','livereload']
+                tasks: ['uglify:debug']
             },
             compass: {
                 files: ['app/**/*.scss'],
-                tasks: ['compass:debug','livereload']
+                tasks: ['compass:debug']
             },
             jade: {
                 files: ['app/**/*.jade'],
-                tasks: ['jade:debug','livereload']
+                tasks: ['jade:debug']
+            },
+            livereload: {
+                files: [
+                    '.tmp/**/*.html',
+                    '.tmp/styles/**/*.css',
+                    '.tmp/scripts/**/*.js',
+                    '.tmp/images/**/*.{png,jpg,jpeg,webp}'
+                ],
+                tasks: ['livereload']
             }
         },
         connect: {
             options: {
-                port: 2013,
+                port: 9999,
                 hostname: '0.0.0.0'
             },
             livereload: {
@@ -55,14 +64,14 @@ module.exports = function(grunt) {
         },
         clean: {
             debug: '.tmp',
-            dist: ['.tmp', 'dist/*'],
+            dist: ['dist'],
         },
         jshint: {
             options: {
                 jshintrc: '.jshintrc'
             },
             all: [
-                'app/scripts/{,*/}*.js']
+                'app/scripts/**/*.js']
         },
         compass: {
             debug: {
@@ -114,10 +123,21 @@ module.exports = function(grunt) {
             }
         },
         uglify: {
+            debug:{
+                options: {
+                  beautify: true,
+                  mangle:false,
+                  compress:false
+                },
+                files: {
+                    '.tmp/scripts/main.js': [
+                        'app/scripts/**/*.js'],
+                }
+            },
             dist: {
                 files: {
                     'dist/scripts/main.js': [
-                        'app/scripts/{,*/}*.js'],
+                        'app/scripts/**/*.js'],
                 }
             }
         },
@@ -136,7 +156,7 @@ module.exports = function(grunt) {
                 files: [{
                     expand: true,
                     cwd: 'app',
-                    src: ['**/*.{css,js,png,jpg,jpeg}'],
+                    src: ['**/*.{css,png,jpg,jpeg}'],
                     dest: '.tmp/'
                 }]
             },
@@ -144,7 +164,7 @@ module.exports = function(grunt) {
                 files: [{
                     expand: true,
                     cwd: 'app',
-                    src: ['**/*.{css,js,png,jpg,jpeg}'],
+                    src: ['**/*.{css,png,jpg,jpeg}'],
                     dest: '.dist/'
                 }]
             }
@@ -164,6 +184,7 @@ module.exports = function(grunt) {
             'livereload-start',
             'connect:livereload',
             'copy:debug',
+            'uglify:debug',
             'open',
             'watch']);
     });

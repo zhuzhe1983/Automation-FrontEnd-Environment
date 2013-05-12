@@ -1,0 +1,30 @@
+# editorconfig文件定义一致的code style规范，通过
+# 根据不同的开发IDE或编辑器统一代码风格
+# 详情见 editorconfig.org
+
+root = true
+
+
+[**.js]
+indent_style = tab
+indent_size = 4
+ 
+[Makefile]
+indent_style = tab
+indent_size = 2
+ 
+[**.html]
+indent_style = tab
+indent_size = 4
+ 
+[**.css]
+indent_style = tab
+indent_size = 4
+ 
+[**.jade]
+indent_style = tab
+indent_size = 2
+ 
+[test/**.css]
+indent_style = space
+indent_size = 8
