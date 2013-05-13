@@ -135,6 +135,9 @@ module.exports = function(grunt) {
                 }
             },
             dist: {
+            	options:{
+            		sourceMap: 'dist/scripts/source-map.js'
+            	},
                 files: {
                     'dist/scripts/main.js': [
                         'app/scripts/**/*.js'],
