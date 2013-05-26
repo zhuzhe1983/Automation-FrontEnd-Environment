@@ -18,9 +18,16 @@ gem install compass
 npm install -g grunt-cli
 ```
 
-这时候你的环境就安装好了。
+这时候你的开发环境依赖就安装好了。不要嫌麻烦，花十几分钟安装好这些环境以后，你的开发将变得更加简单。
 
-下载所有源代码，然后在当前目录下使用NodeJS命令
+
+然后，下载所有源代码。（可以直接在github里下载或者在本地用git命令）
+
+```
+$ git clone git@github.com:AliyunUED/Automation-FrontEnd-Environment.git
+```
+
+然后在当前目录下使用NodeJS命令安装所有npm
 
 ```
 npm install
@@ -28,12 +35,12 @@ npm install
 
 ## 运行
 
-安装好以后执行
+上面的全部安装好以后执行
 
 ```
 grunt
 ```
-浏览器将自动打开预览地址。
+这时候你可以看到浏览器将自动打开地址。
 
 ## 备注：
 [Sass用法指南](http://www.ruanyifeng.com/blog/2012/06/sass.html)
