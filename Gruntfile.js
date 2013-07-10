@@ -3,9 +3,14 @@ var mountFolder = function (connect, dir) {
     return connect.static(require('path').resolve(dir));
 };
 
-var project = "app";
-var projectDir = "project/"+project;
-var buildDir = "build/"+project;
+var project = "canku";
+var scmType = "git";
+var scmBranch = "master";
+var scmUrl = "git@github.com:zhuzhe1983/canku.git";
+var projectDir = "project/" + project;
+var buildDir = "build/" + project;
+
+console.log(projectDir);
 
 module.exports = function (grunt) {
     // load all grunt tasks
@@ -37,6 +42,13 @@ module.exports = function (grunt) {
                 tasks: ['jade:debug']
             }
         },
+        clean: {
+            debug: projectDir,
+            dist: [
+                projectDir,
+                buildDir
+            ]
+        },
         // 开启一个静态服务器，端口为9999，host为0.0.0.0时，其它机器可以通过你的ip:9999访问，如果不希望则使用localhost
         connect: {
             options: {
@@ -56,6 +68,21 @@ module.exports = function (grunt) {
         open: {
             server: {
                 path: 'http://localhost:<%= connect.options.port %>'
+            }
+        },
+        git: {
+            clone: {
+                options: {
+                    command: 'clone',
+                    server: scmUrl,
+                    branch: scmBranch,
+                    path: projectDir
+                }
+            },
+            pull: {
+                options: {
+                    command: 'pull'
+                }
             }
         },
         // jshint，不解释
@@ -209,36 +236,62 @@ module.exports = function (grunt) {
         }
     });
 
-    // 注册一个自定义任务，里面包含多个子任务，当运行的是server:dist时，则打开浏览地址并指向build目录
-    grunt.registerTask('server', function (target) {
-        if (target === 'dist') {
-            return grunt.task.run(['build', 'open', 'connect:dist:keepalive']);
-        }
+    //FECI Functions
 
-        grunt.task.run([
-            'compass:debug',
-            'less:debug',
-            'jade:debug',
-            'copy:debug',
-            'uglify:debug',
-            'open',
-            'watch']);
-    });
-
-    grunt.registerTask('test', [
-
+    //clean
+    grunt.registerTask('clean', [
+        'clean:debug'
     ]);
 
-    // grunt build命令时执行以下几个任务，子任务用"："隔开
-    grunt.registerTask('build', [
-        'compass:dist',
-        'less:dist',
-        'jade:dist',
-        'imagemin:dist',
-        'uglify:dist',
-        'copy:dist']);
+    //clone source code
+    grunt.registerTask('scm', [
+        'git:pull'/*,
+        'git:clone'*/
+    ]);
 
-    // 所有grunt项目就当都注册一个default命令，这样直接运行grunt时，会触发此任务
+    //compile
+    grunt.registerTask('comp', [
+        'jade:debug',
+        'compass:debug',
+        'less:debug',
+        //'stylus:debug',
+        //'sass:debug'
+    ]);
+
+    //minimize
+    grunt.registerTask('min', [
+        'cssmin:debug',
+        'htmlmin:debug',
+        'imagemin:debug',
+        'uglify:debug'
+    ]);
+
+    //QA
+    grunt.registerTask('test', [
+        'jasmine:debug',
+        'csslint:debug',
+        'jshint:debug',
+        'quint:debug'
+    ]);
+
+    //package
+    grunt.registerTask('pack', [
+        'concat:debug',
+        'compress:debug'
+    ])
+
+    //server
+    grunt.registerTask('server', [
+        'connect:debug'
+    ]);
+
+    //default
     grunt.registerTask('default', [
-        'server', 'jshint']);
+        'scm',
+        'comp'/*,
+        'min',
+        'test',
+        'pack',
+        'server'*/
+    ]);
 };
