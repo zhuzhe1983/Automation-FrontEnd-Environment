@@ -402,8 +402,8 @@ module.exports = function (grunt) {
 
     //default
     grunt.registerTask('default', [
-        //'clean',
-        //'scm',
+        'clean',
+        'scm',
         'comp',
         'min',
         //'test',
