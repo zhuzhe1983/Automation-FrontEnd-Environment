@@ -3,14 +3,12 @@ var mountFolder = function (connect, dir) {
     return connect.static(require('path').resolve(dir));
 };
 
-var project = "canku";
+var project = "dumpling";
 var scmType = "git";
 var scmBranch = "master";
-var scmUrl = "git@github.com:zhuzhe1983/canku.git";
-var projectDir = "project/" + project;
-var buildDir = "build/" + project;
-
-console.log(projectDir);
+var scmUrl = "git@github.com:zhuzhe1983/dumpling.git";
+var projectDir = "project/source/" + project;
+var buildDir = "project/build/" + project;
 
 module.exports = function (grunt) {
     // load all grunt tasks
@@ -18,10 +16,11 @@ module.exports = function (grunt) {
     require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
 
     grunt.initConfig({
+        pkg: grunt.file.readJSON('package.json'),
         // watch为任务的key，可随便取
         watch: {
             // 需要监听变化的文件，/**/*为grunt里约定的通配符，表示所有子目录，详见http://gruntjs.com/configuring-tasks
-            // task为需要运行的任务，当js发生变化时，运行copy:debug任务，把所有文件复制到.tmp目录以供浏览
+            // task为需要运行的任务，当js发生变化时，运行copy:debug任务，把所有文件复制到projectDir目录以供浏览
             scripts: {
                 files: [projectDir + '/**/*.{js,css,png,jpg,jpeg,webp}'],
                 tasks: ['copy:debug']
@@ -43,31 +42,35 @@ module.exports = function (grunt) {
             }
         },
         clean: {
-            debug: projectDir,
-            dist: [
-                projectDir,
-                buildDir
-            ]
+                'project':projectDir,
+                'build':buildDir
         },
         // 开启一个静态服务器，端口为9999，host为0.0.0.0时，其它机器可以通过你的ip:9999访问，如果不希望则使用localhost
         connect: {
-            options: {
-                port: 9999,
-                hostname: '0.0.0.0'
-            },
-            dist: {
+            debug:{
                 options: {
-                    middleware: function (connect) {
-                        return [
-                            mountFolder(connect, buildDir)];
-                    }
+                    port: 80,
+                    hostname: '0.0.0.0',
+                    keepalive: true,
+                    base:buildDir
+                }
+            },
+            build: {
+                options: {
+                    port: 80,
+                    hostname: '0.0.0.0',
+                    keepalive: true,
+                    base:buildDir
                 }
             }
         },
         // 从浏览器打开一个地址
         open: {
-            server: {
-                path: 'http://localhost:<%= connect.options.port %>'
+            debug:{
+                path: 'http://localhost:<%= connect.debug.options.port %>/?debug=true'
+            },
+            build:{
+                path: 'http://localhost:<%= connect.debug.options.port %>/'
             }
         },
         git: {
@@ -98,15 +101,31 @@ module.exports = function (grunt) {
         less: {
             debug: {
                 options: {
-                    paths: projectDir + '/styles'
-                }
+                    paths: projectDir
+                },
+                files: [
+                    {
+                        expand: true,
+                        cwd: projectDir,
+                        src: ['**/*.less'],
+                        dest: buildDir,
+                        ext: '.css'
+                    }
+                ]
             },
-            dist: {
+            build: {
                 options: {
-                    paths: projectDir + '/styles',
-                    yuicompress: true
-                }
-
+                    compress: true
+                },
+                files: [
+                    {
+                        expand: true,
+                        cwd: projectDir,
+                        src: ['**/*.less'],
+                        dest: buildDir,
+                        ext: '.css'
+                    }
+                ]
             }
         },
         // compass，sass的一个超集，这里配置需要编译的目录和编译配置选项
@@ -116,15 +135,33 @@ module.exports = function (grunt) {
                     sassDir: projectDir + '/styles',
                     cssDir: buildDir + '/styles',
                     imagesDir: projectDir + '/images'
-                }
+                },
+                files: [
+                    {
+                        expand: true,
+                        cwd: projectDir,
+                        src: ['**/*.scss'],
+                        dest: buildDir,
+                        ext: '.css'
+                    }
+                ]
             },
-            dist: {
+            build: {
                 options: {
                     sassDir: projectDir + '/styles',
                     cssDir: buildDir + '/styles',
                     imagesDir: projectDir + '/images',
                     environment: 'production'
-                }
+                },
+                files: [
+                    {
+                        expand: true,
+                        cwd: projectDir,
+                        src: ['**/*.scss'],
+                        dest: buildDir,
+                        ext: '.css'
+                    }
+                ]
             }
         },
         // jade文件编译成html，pretty:true代表自动格式化漂亮的html
@@ -138,15 +175,15 @@ module.exports = function (grunt) {
                 },
                 files: [
                     {
-                        expand: true, // expand为true,则可以设置以下选项
-                        cwd: projectDir + '/', // 要操作的目录（不包含）
-                        src: ['**/*.jade'], // 指定路径
-                        dest: buildDir + '/', // 要生成的目标路径
-                        ext: '.html' // 要生成的文件后缀
+                        expand: true,
+                        cwd: projectDir,
+                        src: ['**/*.jade'],
+                        dest: buildDir,
+                        ext: '.html'
                     }
                 ]
             },
-            dist: {
+            build: {
                 options: {
                     data: {
                         debug: true
@@ -156,9 +193,9 @@ module.exports = function (grunt) {
                 files: [
                     {
                         expand: true,
-                        cwd: projectDir + '/',
+                        cwd: projectDir,
                         src: ['**/*.jade'],
-                        dest: buildDir + '/',
+                        dest: buildDir,
                         ext: '.html'
                     }
                 ]
@@ -168,24 +205,69 @@ module.exports = function (grunt) {
         uglify: {
             debug: {
                 options: {
+                    banner:'/* <%= pkg.name %> - v<%= pkg.version %> - ' +
+                        '<%= grunt.template.today("yyyy-mm-dd") %> */' + "\n",
                     beautify: true, // 是否漂亮格式
                     mangle: false, // 是否短化变量
-                    compress: false, // 是否压缩格式
-                    sourceMap: buildDir + '/scripts/source-map.js'
+                    compress: false // 是否压缩格式
                 },
-                files: {
-                    '.tmp/scripts/main.js': [ projectDir + '/scripts/**/*.js']
-                }
+                files: [
+                    {
+                        expand: true,
+                        cwd: projectDir,
+                        src: ['**/*.js'],
+                        dest: buildDir,
+                        ext: '.dev.js'
+                    }
+                ]
             },
-            dist: {
+            build: {
                 options: {
+                    banner:'/* <%= pkg.name %> - v<%= pkg.version %> - ' +
+                        '<%= grunt.template.today("yyyy-mm-dd") %> */' + "\n"
                     // 在生产环境下，生成source-map.js文件，有助于线上找出压缩过的JS文件异常行号
-                    sourceMap: buildDir + '/scripts/source-map.js'
                 },
-                files: {
-                    'dist/scripts/main.js': [
-                        projectDir + '/scripts/**/*.js']
-                }
+                files: [
+                    {
+                        expand: true,
+                        cwd: projectDir,
+                        src: ['**/*.js'],
+                        dest: buildDir,
+                        ext: '.min.js'
+                    }
+                ]
+            }
+        },
+        //css 压缩
+        cssmin: {
+            debug:{
+                options: {
+                    banner: '/* <%= pkg.name %> - v<%= pkg.version %> - ' +
+                        '<%= grunt.template.today("yyyy-mm-dd") %> */' + "\n"
+                },
+                files: [
+                    {
+                        expand: true,
+                        cwd: projectDir,
+                        src: ['**/*.css', '**/!*.min.css'],
+                        dest: buildDir,
+                        ext: '.min.css'
+                    }
+                ]
+            },
+            build:{
+                options: {
+                    banner: '/* My minified css file */'
+                },
+                files: [
+                    {
+                        expand: true,
+                        cwd: projectDir,
+                        src: ['**/*.css', '**/!*.min.css'],
+                        dest: buildDir,
+                        ext: '.min.css'
+                    }
+                ]
             }
         },
         // 图片优化，只在build为生产环境时用到
@@ -194,19 +276,49 @@ module.exports = function (grunt) {
                 files: [
                     {
                         expand: true,
-                        cwd: projectDir + '/images',
-                        src: '{,*/}*.{png,jpg,jpeg}',
-                        dest: buildDir + '/images'
+                        cwd: projectDir,
+                        src: '{,**/}*.{png,jpg,jpeg,gif}',
+                        dest: buildDir
                     }
                 ]
             },
-            dist: {
+            build: {
                 files: [
                     {
                         expand: true,
-                        cwd: projectDir + '/images',
-                        src: '{,*/}*.{png,jpg,jpeg}',
-                        dest: buildDir + '/images'
+                        cwd: projectDir,
+                        src: '{,**/}*.{png,jpg,jpeg,gif}',
+                        dest: buildDir
+                    }
+                ]
+            }
+        },
+        htmlmin: {
+            debug: {
+                options: {
+                    removeComments: true,
+                    collapseWhitespace: false
+                },
+                files: [
+                    {
+                        expand: true,
+                        cwd: buildDir,
+                        src: '{,**/}*.html',
+                        dest: buildDir
+                    }
+                ]
+            },
+            build: {
+                options: {
+                    removeComments: true,
+                    collapseWhitespace: true
+                },
+                files: [
+                    {
+                        expand: true,
+                        cwd: buildDir,
+                        src: '{,***/}*.html',
+                        dest: buildDir
                     }
                 ]
             }
@@ -217,19 +329,19 @@ module.exports = function (grunt) {
                 files: [
                     {
                         expand: true,
-                        cwd: projectDir + '',
+                        cwd: projectDir,
                         src: ['**/*.{css,png,jpg,jpeg}'],
-                        dest: buildDir + '/'
+                        dest: buildDir
                     }
                 ]
             },
-            dist: {
+            build: {
                 files: [
                     {
                         expand: true,
-                        cwd: projectDir + '',
+                        cwd: projectDir,
                         src: ['**/*.{css,png,jpg,jpeg}'],
-                        dest: buildDir + '/'
+                        dest: buildDir
                     }
                 ]
             }
@@ -239,31 +351,33 @@ module.exports = function (grunt) {
     //FECI Functions
 
     //clean
+    /*
     grunt.registerTask('clean', [
-        'clean:debug'
+        'clean'
     ]);
+    */
 
     //clone source code
     grunt.registerTask('scm', [
-        'git:pull'/*,
-        'git:clone'*/
+        'git:clone'/*,
+        'git:pull'*/
     ]);
 
     //compile
     grunt.registerTask('comp', [
         'jade:debug',
         'compass:debug',
-        'less:debug',
+        //'less:debug',
         //'stylus:debug',
-        //'sass:debug'
+        'compass:debug'
     ]);
 
     //minimize
     grunt.registerTask('min', [
-        'cssmin:debug',
-        'htmlmin:debug',
+        'uglify:debug',
         'imagemin:debug',
-        'uglify:debug'
+        'cssmin:debug',
+        'htmlmin:debug'
     ]);
 
     //QA
@@ -282,16 +396,18 @@ module.exports = function (grunt) {
 
     //server
     grunt.registerTask('server', [
+        'open',
         'connect:debug'
     ]);
 
     //default
     grunt.registerTask('default', [
-        'scm',
-        'comp'/*,
+        //'clean',
+        //'scm',
+        'comp',
         'min',
-        'test',
-        'pack',
-        'server'*/
+        //'test',
+        //'pack',
+        'server'
     ]);
 };
